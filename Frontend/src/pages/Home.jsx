@@ -56,7 +56,7 @@ const Home = () => {
         <div className="relative max-w-4xl mx-auto text-center">
           <span className="inline-flex items-center gap-2 px-4 py-1.5 bg-white/10 border border-white/20 rounded-full text-xs font-semibold text-white/80 uppercase tracking-widest mb-8">
             <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
-            Premium Car Rental Platform
+            🚔Car Rental Platform
           </span>
 
           <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold text-white leading-tight tracking-tight mb-6">
@@ -68,7 +68,7 @@ const Home = () => {
           </h1>
 
           <p className="text-lg text-white/60 max-w-xl mx-auto mb-10 leading-relaxed">
-            Browse hundreds of vehicles from trusted agencies. Transparent pricing, instant booking, zero hassle.
+            Browse vehicles from trusted agencies. Transparent pricing, instant booking, zero hassle.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -91,8 +91,8 @@ const Home = () => {
           {/* Stats */}
           <div className="mt-16 grid grid-cols-3 gap-4 max-w-sm mx-auto sm:max-w-md">
             {[
-              { value: "500+", label: "Vehicles" },
-              { value: "50+", label: "Agencies" },
+              { value: "50+", label: "Vehicles" },
+              { value: "5+", label: "Agencies" },
               { value: "24/7", label: "Support" },
             ].map(({ value, label }) => (
               <div key={label} className="text-center">
