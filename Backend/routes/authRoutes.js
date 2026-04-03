@@ -44,22 +44,23 @@ router.post('/login', async (req, res) => {
 
 // Google Login
 router.post('/google-login', async (req, res) => {
-    const { token } = req.body;
+    const { access_token } = req.body;
     try {
-        const ticket = await client.verifyIdToken({
-            idToken: token,
-            audience: process.env.GOOGLE_CLIENT_ID
-        });
-        const { name, email, picture } = ticket.getPayload();
+        // Fetch user info from Google using the access token
+        const response = await fetch(`https://www.googleapis.com/oauth2/v3/userinfo?access_token=${access_token}`);
+        if (!response.ok) return res.status(401).json({ message: 'Invalid Google token.' });
 
-        // Check if user exists
+        const { name, email } = await response.json();
+        if (!email) return res.status(400).json({ message: 'Could not retrieve email from Google.' });
+
         const [users] = await db.execute('SELECT * FROM users WHERE email = ?', [email]);
         let user;
 
         if (users.length === 0) {
-            // Create user as customer by default for Google Login
-            const [result] = await db.execute('INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)', 
-                [name, email, 'GOOGLE_AUTH_USER', 'customer']);
+            const [result] = await db.execute(
+                'INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)',
+                [name, email, 'GOOGLE_AUTH_USER', 'customer']
+            );
             user = { id: result.insertId, name, email, role: 'customer' };
         } else {
             user = users[0];

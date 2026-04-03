@@ -24,9 +24,9 @@ export const loginUser = async (email, password) => {
     }
 };
 
-export const googleLogin = async (credential) => {
+export const googleLogin = async (accessToken) => {
     try {
-        const res = await axios.post(`${API_URL}/google-login`, { token: credential });
+        const res = await axios.post(`${API_URL}/google-login`, { access_token: accessToken });
         if (res.data.success) {
             localStorage.setItem('token', res.data.token);
             localStorage.setItem('currentUser', JSON.stringify(res.data.user));
