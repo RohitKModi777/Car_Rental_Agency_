@@ -1,11 +1,9 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const { OAuth2Client } = require('google-auth-library');
+const axios = require('axios');
 const db = require('../config/db');
 const router = express.Router();
-
-const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 // Register
 router.post('/register', async (req, res) => {
@@ -45,12 +43,14 @@ router.post('/login', async (req, res) => {
 // Google Login
 router.post('/google-login', async (req, res) => {
     const { access_token } = req.body;
+    if (!access_token) return res.status(400).json({ message: 'Access token is required.' });
     try {
-        // Fetch user info from Google using the access token
-        const response = await fetch(`https://www.googleapis.com/oauth2/v3/userinfo?access_token=${access_token}`);
-        if (!response.ok) return res.status(401).json({ message: 'Invalid Google token.' });
+        const { data } = await axios.get(
+            `https://www.googleapis.com/oauth2/v3/userinfo`,
+            { headers: { Authorization: `Bearer ${access_token}` } }
+        );
 
-        const { name, email } = await response.json();
+        const { name, email } = data;
         if (!email) return res.status(400).json({ message: 'Could not retrieve email from Google.' });
 
         const [users] = await db.execute('SELECT * FROM users WHERE email = ?', [email]);
@@ -69,7 +69,8 @@ router.post('/google-login', async (req, res) => {
         const jwtToken = jwt.sign({ id: user.id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1d' });
         res.json({ success: true, token: jwtToken, user: { id: user.id, name: user.name, email: user.email, role: user.role } });
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        const msg = err.response?.data?.error_description || err.message;
+        res.status(500).json({ error: msg });
     }
 });
 
