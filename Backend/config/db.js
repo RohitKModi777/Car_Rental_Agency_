@@ -1,24 +1,16 @@
 const mysql = require('mysql2');
 require('dotenv').config();
 
-const dbConfig = {
+const pool = mysql.createPool({
     host: process.env.DB_HOST,
     user: process.env.DB_USER,
     password: process.env.DB_PASS,
     database: process.env.DB_NAME,
-    port: process.env.DB_PORT || 3306,
+    port: parseInt(process.env.DB_PORT) || 3306,
     waitForConnections: true,
     connectionLimit: 10,
-    queueLimit: 0
-};
-
-// Many cloud providers (like Aiven, Render, Railway) require SSL
-if (process.env.DB_SSL === 'true' || (process.env.DB_HOST && process.env.DB_HOST.includes('.com'))) {
-    dbConfig.ssl = {
-        rejectUnauthorized: false
-    };
-}
-
-const pool = mysql.createPool(dbConfig);
+    queueLimit: 0,
+    ssl: { rejectUnauthorized: false }   // required for Aiven, harmless locally
+});
 
 module.exports = pool.promise();
